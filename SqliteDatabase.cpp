@@ -129,3 +129,18 @@ std::vector<std::string> SqliteDatabase::getUsers() {
     sqlite3_finalize(stmt);
     return users;
 }
+
+int SqliteDatabase::getUserScore(std::string username) {
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(_db, GET_USER_SCORE, -1, &stmt, nullptr);
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_ROW) {
+        throw std::runtime_error("Error: no user found!");
+    }
+
+    const int score = sqlite3_column_int(stmt, 0);
+
+    sqlite3_finalize(stmt);
+    return score;
+}

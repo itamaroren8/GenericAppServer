@@ -20,6 +20,7 @@ public:
     int addUser(std::string username, int score) override;
     int removeUser(std::string username) override;
     int addUserScore(std::string username, int score) override;
+    int getUserScore(std::string username) override;
     std::vector<std::string> getUsers() override;
 private:
     sqlite3* _db;

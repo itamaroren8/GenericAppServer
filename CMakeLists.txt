@@ -24,7 +24,7 @@ add_executable(App main.cpp
         Communicator.h
         CONSTANTS.h)
 
-target_include_directories(App PRIVATE ${SQLite3_LIBRARIES})
+target_include_directories(App PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(App PRIVATE ${SQLite3_LIBRARIES})
 target_include_directories(App PRIVATE ${sockpp_SOURCE_DIR}/include)
 target_link_libraries(App PRIVATE Sockpp::sockpp)
@@ -32,4 +32,11 @@ target_link_libraries(App PRIVATE Sockpp::sockpp)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_package(Threads REQUIRED)
     target_link_libraries(App PRIVATE Threads::Threads)
+elseif(WIN32)
+    add_custom_command(TARGET App POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:App>
+            $<TARGET_FILE_DIR:App>
+            COMMAND_EXPAND_LISTS
+    )
 endif()

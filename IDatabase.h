@@ -18,6 +18,7 @@ public:
     virtual int addUser(std::string, int) = 0;
     virtual int removeUser(std:: string) = 0;
     virtual int addUserScore(std::string, int) = 0;
+    virtual int getUserScore(std:: string) = 0;
     virtual std::vector<std::string> getUsers() = 0;
 };
 
