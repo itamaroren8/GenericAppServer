@@ -35,9 +35,11 @@ void Communicator::listenToClients() {
 void Communicator::handleClient(sockpp::tcp_socket socket) {
     char buffer[BUFFER_SIZE];
     ssize_t n = socket.read(buffer, sizeof(buffer)).value();
+
     if (n > 0) {
-        std::string msg(buffer, n);
-        std::cout << msg << "\n";
+        auto msg = std::vector<char>(std::begin(buffer), std::end(buffer));
+
+
     }
 
     socket.send("Hello from server");
