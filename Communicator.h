@@ -6,12 +6,14 @@
 #define APP_COMMUNICATOR_H
 #include <sockpp/tcp_acceptor.h>
 
+#include "LoggedUser.h"
 #include "SqliteDatabase.h"
 
 
 class Communicator {
 private:
     SqliteDatabase* _db;
+    std::vector<LoggedUser> _loggedUsers;
 public:
     Communicator();
     void listenToClients();

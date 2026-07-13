@@ -5,11 +5,12 @@
 #include "LoginRequestHandler.h"
 
 #include <stdexcept>
+#include <utility>
 
 #include "LoggedUser.h"
 #include "Requests.h"
 
-LoginRequestHandler::LoginRequestHandler(IDatabase *db, std::vector<LoggedUser> loggedUsers) : _db(db), _loggedUsers(loggedUsers) {}
+LoginRequestHandler::LoginRequestHandler(IDatabase *db, std::vector<LoggedUser>& loggedUsers) : _db(db), _loggedUsers(loggedUsers) {}
 
 /*
  * Handles a client request (Login).
@@ -17,18 +18,18 @@ LoginRequestHandler::LoginRequestHandler(IDatabase *db, std::vector<LoggedUser> 
  * OUTPUT: true for success. false for failure. std::runtime_error for errors.
  */
 bool LoginRequestHandler::handleRequest(IRequest* request) {
-    switch (request->code) {
+    switch (request->_code) {
         case (Login): {
             const auto loginRequest = dynamic_cast<LoginRequest*>(request);
             if (!loginRequest) throw std::runtime_error("Couldn't convert request to login request!");
 
-            return login(loginRequest->username, loginRequest->password);
+            return login(loginRequest->_username, loginRequest->_password);
         }
         case (SignUp): {
             const auto signUpRequest = dynamic_cast<SignUpRequest*>(request);
             if (!signUpRequest) throw std::runtime_error("Couldn't convert request to signup request!");
 
-            return signUp(signUpRequest->username, signUpRequest->password, signUpRequest->email);
+            return signUp(signUpRequest->_username, signUpRequest->_password, signUpRequest->_email);
         }
         default:
             throw std::runtime_error("Request code is invalid!");
