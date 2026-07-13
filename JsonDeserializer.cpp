@@ -10,7 +10,7 @@
 /*
  * Deserializes a buffer to a login request.
  * INPUT: buffer: std::vector<char>.
- * OUTPUT: IRequest*(polymorphysm pointer, can point to LoginRequest or SignUpRequest).
+ * OUTPUT: IRequest*(polymorphism pointer, can point to LoginRequest or SignUpRequest).
  */
 IRequest *JsonDeserializer::deserializeLoginRequest(const std::vector<char> &buffer) {
     nlohmann::json data = nlohmann::json::parse(buffer.begin(), buffer.end());

@@ -12,6 +12,7 @@
 
 #include "IRequestHandler.h"
 #include "JsonDeserializer.h"
+#include "JsonSerializer.h"
 #include "LoginRequestHandler.h"
 
 Communicator::Communicator() {
@@ -50,16 +51,24 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
         if (n > 0) {
             const auto msg = std::vector<char>(std::begin(buffer), std::end(buffer));
             try {
-                IRequest* request = JsonDeserializer::deserializeLoginRequest(msg);
-                const bool result = requestHandler->handleRequest(request);
-                socket.send(std::to_string(result));
-            }
-            catch (std::runtime_error e) {
-                socket.send(e.what());
-            }
-        }
+                IRequest* request = requestHandler->deserializeRequest(msg);
+                IResult result = requestHandler->handleRequest(request);
+                std::vector<char> serializedMsg = requestHandler->serializeResponse(result._response);
 
-        std::cout << "Request handled successfully on thread: " << std::this_thread::get_id() << "\n";
+                if (requestHandler != result._requestHandler) {
+                    delete requestHandler;
+                    requestHandler = result._requestHandler;
+                }
+
+                socket.send(std::string(serializedMsg.begin(), serializedMsg.end()));
+            }
+            catch (std::runtime_error& e) {
+                std::vector<char> serializedMsg = requestHandler->serializeResponse({PROTOCOL_FAILURE, e.what()});
+                socket.send(std::string(serializedMsg.begin(), serializedMsg.end()));
+            }
+
+            std::cout << "Request handled successfully on thread: " << std::this_thread::get_id() << "\n";
+        }
     }
 }
 

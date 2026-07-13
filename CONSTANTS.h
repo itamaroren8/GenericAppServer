@@ -9,5 +9,7 @@
 #define SOCKET_CHANNEL "Listening channel"
 #define LISTENING_QUEUE_SIZE 16
 #define BUFFER_SIZE 1024
+#define PROTOCOL_SUCCESS 10
+#define PROTOCOL_FAILURE 20
 
 #endif //APP_CONSTANTS_H
