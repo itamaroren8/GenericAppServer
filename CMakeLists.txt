@@ -26,7 +26,8 @@ add_executable(App main.cpp
         IRequestHandler.h
         LoginRequestHandler.cpp
         LoginRequestHandler.h
-        Requests.h)
+        Requests.h
+        LoggedUser.h)
 
 target_include_directories(App PRIVATE ${SQLite3_LIBRARIES})
 target_link_libraries(App PRIVATE ${SQLite3_LIBRARIES})

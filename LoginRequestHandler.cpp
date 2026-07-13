@@ -6,6 +6,7 @@
 
 #include <stdexcept>
 
+#include "LoggedUser.h"
 #include "Requests.h"
 
 LoginRequestHandler::LoginRequestHandler(IDatabase *db) : _db(db) {}
@@ -29,8 +30,9 @@ bool LoginRequestHandler::handleRequest(IRequest* request) {
     }
 }
 
-bool LoginRequestHandler::login(std::string username, std::string password) {
-    return true; // TODO: Add login capabilities.
+LoggedUser LoginRequestHandler::login(std::string username, std::string password) {
+    _db.verifyUser(username, password);
+    return {};
 }
 
 bool LoginRequestHandler::signUp(std::string username, std::string password, std::string email) {
