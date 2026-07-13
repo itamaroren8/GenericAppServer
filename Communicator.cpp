@@ -3,12 +3,20 @@
 //
 
 #include "Communicator.h"
+
+#include <complex.h>
+
 #include "CONSTANTS.h"
 #include <iostream>
 #include <thread>
 
+#include "IRequestHandler.h"
+#include "JsonDeserializer.h"
+#include "LoginRequestHandler.h"
+
 Communicator::Communicator() {
     _db = new SqliteDatabase(); // Interchangeable to any implemented database class
+    _db->open();
 }
 
 void Communicator::listenToClients() {
@@ -33,16 +41,26 @@ void Communicator::listenToClients() {
 }
 
 void Communicator::handleClient(sockpp::tcp_socket socket) {
+    IRequestHandler* requestHandler = new LoginRequestHandler(_db, _loggedUsers);
     char buffer[BUFFER_SIZE];
-    ssize_t n = socket.read(buffer, sizeof(buffer)).value();
 
-    if (n > 0) {
-        auto msg = std::vector<char>(std::begin(buffer), std::end(buffer));
+    while (true) {
+        const ssize_t n = socket.read(buffer, sizeof(buffer)).value();
 
+        if (n > 0) {
+            const auto msg = std::vector<char>(std::begin(buffer), std::end(buffer));
+            try {
+                IRequest* request = JsonDeserializer::deserializeLoginRequest(msg);
+                const bool result = requestHandler->handleRequest(request);
+                socket.send(std::to_string(result));
+            }
+            catch (std::runtime_error e) {
+                socket.send(e.what());
+            }
+        }
 
+        std::cout << "Request handled successfully on thread: " << std::this_thread::get_id() << "\n";
     }
-
-    socket.send("Hello from server");
 }
 
 

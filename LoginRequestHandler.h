@@ -12,13 +12,13 @@
 
 class LoginRequestHandler : public IRequestHandler {
 public:
-    LoginRequestHandler(IDatabase* db, std::vector<LoggedUser> loggedUsers);
+    LoginRequestHandler(IDatabase* db, std::vector<LoggedUser>& loggedUsers);
     bool handleRequest(IRequest* request) override;
 private:
     bool login(const std::string& username, const std::string &password);
     bool signUp(const std::string& username, const std::string& password, const std::string& email);
     IDatabase* _db;
-    std::vector<LoggedUser> _loggedUsers;
+    std::vector<LoggedUser>& _loggedUsers;
 };
 
 enum LoginRequestCodes {
