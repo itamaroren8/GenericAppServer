@@ -6,8 +6,8 @@
 #define APP_LOGGEDUSER_H
 #include <string>
 
-class LoggedUser {
+typedef struct {
     std::string username;
-};
+} LoggedUser;
 
 #endif //APP_LOGGEDUSER_H
