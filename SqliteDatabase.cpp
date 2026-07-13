@@ -17,7 +17,7 @@ SqliteDatabase::~SqliteDatabase() {
  * OUTPUT: 0 for success. std::runtime_error for failure.
  */
 int SqliteDatabase::open() {
-    if (sqlite3_open(DATEBASE_FILE, &_db))
+    if (sqlite3_open_v2(DATEBASE_FILE, &_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, nullptr))
         throw std::runtime_error("Couldn't open database!");
 
     if (sqlite3_exec(_db, CREATE_USERS_TABLE, nullptr, nullptr, &_errMsg) != SQLITE_OK) {
