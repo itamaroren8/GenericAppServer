@@ -9,7 +9,6 @@
 
 Communicator::Communicator() {
     _db = new SqliteDatabase(); // Interchangeable to any implemented database class
-    _db->open();
 }
 
 void Communicator::listenToClients() {
@@ -36,19 +35,14 @@ void Communicator::listenToClients() {
 void Communicator::handleClient(sockpp::tcp_socket socket) {
     char buffer[BUFFER_SIZE];
     ssize_t n = socket.read(buffer, sizeof(buffer)).value();
-    if (n > 0) {
-        std::string msg(buffer, n);
-        std::cout << msg << "\n";
 
-        try {
-            int score = _db->getUserScore(msg);
-            const std::string message = "User score: " + std::to_string(score);
-            socket.send(message);
-        }
-        catch (std::runtime_error e) {
-            socket.send(e.what());
-        }
+    if (n > 0) {
+        auto msg = std::vector<char>(std::begin(buffer), std::end(buffer));
+
+
     }
+
+    socket.send("Hello from server");
 }
 
 

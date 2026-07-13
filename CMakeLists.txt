@@ -22,7 +22,12 @@ add_executable(App main.cpp
         Server.h
         Communicator.cpp
         Communicator.h
-        CONSTANTS.h)
+        CONSTANTS.h
+        IRequestHandler.h
+        LoginRequestHandler.cpp
+        LoginRequestHandler.h
+        Requests.h
+        LoggedUser.h)
 
 target_include_directories(App PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(App PRIVATE ${SQLite3_LIBRARIES})
