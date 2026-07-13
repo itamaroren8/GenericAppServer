@@ -4,12 +4,12 @@
 
 #ifndef APP_SERVER_H
 #define APP_SERVER_H
-#include "IDatabase.h"
+#include "Communicator.h"
 
 
 class Server {
 private:
-    IDatabase* _db;
+    Communicator* _communicator;
 public:
     Server();
     void run();

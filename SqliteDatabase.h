@@ -13,7 +13,7 @@
 class SqliteDatabase : public IDatabase{
 public:
     SqliteDatabase() = default;
-    ~SqliteDatabase();
+    ~SqliteDatabase() override;
     int open() override;
     int close() override;
     int addUser(std::string username, std::string password, std::string email) override;
