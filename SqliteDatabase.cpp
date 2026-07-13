@@ -18,7 +18,7 @@ SqliteDatabase::~SqliteDatabase() {
  */
 int SqliteDatabase::open() {
     if (sqlite3_open(DATEBASE_FILE, &_db))
-        return 1;
+        throw std::runtime_error("Couldn't open database!");
 
     if (sqlite3_exec(_db, CREATE_USERS_TABLE, nullptr, nullptr, &_errMsg) != SQLITE_OK) {
         throw std::runtime_error(_errMsg);
@@ -41,36 +41,20 @@ int SqliteDatabase::close() {
 
 /*
  * Inserts a new user to the database.
- * INPUT: username: string.
+ * INPUT: username: string. password: string. email: string.
  * OUTPUT: 0 for success. std::runtime_error for failure.
  */
-int SqliteDatabase::addUser(const std::string username) {
+int SqliteDatabase::addUser(const std::string username, const std::string password, const std::string email) {
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(_db, ADD_NEW_USER, -1, &stmt, nullptr);
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(stmt, 2, 0);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, email.c_str(), -1, SQLITE_TRANSIENT);
+
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        throw std::runtime_error(sqlite3_errmsg(_db));
-    }
-
-    sqlite3_finalize(stmt);
-    return 0;
-}
-
-/*
- * Inserts a new user to the database.
- * INPUT: username: string. score: int.
- * OUTPUT: 0 for success. std::runtime_error for failure.
- */
-int SqliteDatabase::addUser(const std::string username, const int score) {
-    sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(_db, ADD_NEW_USER, -1, &stmt, nullptr);
-
-    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_int(stmt, 2, score);
-    if (sqlite3_step(stmt) != SQLITE_DONE) {
-        throw std::runtime_error(sqlite3_errmsg(_db));
+        sqlite3_finalize(stmt);
+        throw std::runtime_error("Adding user failed!");
     }
 
     sqlite3_finalize(stmt);
@@ -79,15 +63,20 @@ int SqliteDatabase::addUser(const std::string username, const int score) {
 
 /*
  * Removes an existing user from the database.
+ * INPUT: username: string. password: string.
  * OUTPUT: 0 for success. std::runtime_error for failure.
  */
-int SqliteDatabase::removeUser(const std::string username) {
+int SqliteDatabase::removeUser(const std::string username, const std::string password) {
+    if (!verifyUser(username, password)) throw std::runtime_error("Couldn't verify user. Please check username and password!");
+
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(_db, DELETE_EXISTING_USER, -1, &stmt, nullptr);
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        throw std::runtime_error(sqlite3_errmsg(_db));
+        sqlite3_finalize(stmt);
+        throw std::runtime_error("Removing user failed!");
     }
 
     sqlite3_finalize(stmt);
@@ -98,14 +87,18 @@ int SqliteDatabase::removeUser(const std::string username) {
  * Adds score to an existing player.
  * OUTPUT: 0 for success. std::runtime_error for failure.
  */
-int SqliteDatabase::addUserScore(const std::string username, const int score) {
-    sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(_db, UPDATE_PLAYER_SCORE, -1, &stmt, nullptr);
+int SqliteDatabase::changeUserPassword(const std::string username, const std::string currentPassword, const std::string newPassword) {
+    if (!verifyUser(username, currentPassword)) throw std::runtime_error("Couldn't verify user. Please check username and password!");
 
-    sqlite3_bind_int(stmt, 1, score);
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(_db, UPDATE_PLAYER_PASSWORD, -1, &stmt, nullptr);
+
+    sqlite3_bind_text(stmt, 1, newPassword.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, username.c_str(), -1, SQLITE_TRANSIENT);
+
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        throw std::runtime_error(sqlite3_errmsg(_db));
+        sqlite3_finalize(stmt);
+        throw std::runtime_error("Changing password failed!");
     }
 
     sqlite3_finalize(stmt);
@@ -128,4 +121,26 @@ std::vector<std::string> SqliteDatabase::getUsers() {
 
     sqlite3_finalize(stmt);
     return users;
+}
+
+/*
+ * Checks if user exists with username and password.
+ * INPUT: username: string. password: string.
+ * OUTPUT: true if user exists, false otherwise. std::runtime_error if failed to verify.
+ */
+bool SqliteDatabase::verifyUser(const std::string username, const std::string password) {
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(_db, VERIFY_USER, -1, &stmt, nullptr);
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        int result = sqlite3_column_int(stmt, 0) == 1;
+        sqlite3_finalize(stmt);
+        return result;
+    }
+
+    sqlite3_finalize(stmt);
+    throw std::runtime_error("Verifying user failed!");
 }

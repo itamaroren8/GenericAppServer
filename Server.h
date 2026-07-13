@@ -5,7 +5,6 @@
 #ifndef APP_SERVER_H
 #define APP_SERVER_H
 #include "Communicator.h"
-#include "IDatabase.h"
 
 
 class Server {
