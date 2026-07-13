@@ -13,7 +13,9 @@
 class LoginRequestHandler : public IRequestHandler {
 public:
     LoginRequestHandler(IDatabase* db, std::vector<LoggedUser>& loggedUsers);
-    bool handleRequest(IRequest* request) override;
+    IResult handleRequest(IRequest* request) override;
+    std::vector<char> serializeResponse(const IResponse &) override;
+    IRequest* deserializeRequest(const std::vector<char>& buffer) override;
 private:
     bool login(const std::string& username, const std::string &password);
     bool signUp(const std::string& username, const std::string& password, const std::string& email);

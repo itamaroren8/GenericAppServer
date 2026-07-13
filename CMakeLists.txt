@@ -37,7 +37,11 @@ add_executable(App main.cpp
         Requests.h
         LoggedUser.h
         JsonDeserializer.cpp
-        JsonDeserializer.h)
+        JsonDeserializer.h
+        JsonSerializer.cpp
+        JsonSerializer.h
+        responses.h
+        results.h)
 
 target_include_directories(App PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(App PRIVATE ${SQLite3_LIBRARIES})

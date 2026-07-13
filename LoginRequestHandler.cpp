@@ -7,32 +7,69 @@
 #include <stdexcept>
 #include <utility>
 
+#include "CONSTANTS.h"
+#include "JsonDeserializer.h"
+#include "JsonSerializer.h"
 #include "LoggedUser.h"
 #include "Requests.h"
 
 LoginRequestHandler::LoginRequestHandler(IDatabase *db, std::vector<LoggedUser>& loggedUsers) : _db(db), _loggedUsers(loggedUsers) {}
 
 /*
+ * Serializes a response with the corresponding serializer.
+ * INPUT: response: IResponse.
+ * OUTPUT: std::vector<char>.
+ */
+std::vector<char> LoginRequestHandler::serializeResponse(const IResponse & response) {
+    return JsonSerializer::serializeLoginResponse(response);
+}
+
+/*
+ * Deserializes a request buffer with the corresponding deserializer.
+ * INPUT: buffer: std::vector<char>.
+ * OUTPUT: IRequest* (Uses polymorphism to send the correct type of request).
+ */
+IRequest *LoginRequestHandler::deserializeRequest(const std::vector<char> & buffer) {
+    return JsonDeserializer::deserializeLoginRequest(buffer);
+}
+
+/*
  * Handles a client request (Login).
  * INPUT: request: LoginRequest*.
  * OUTPUT: true for success. false for failure. std::runtime_error for errors.
  */
-bool LoginRequestHandler::handleRequest(IRequest* request) {
+IResult LoginRequestHandler::handleRequest(IRequest* request) {
     switch (request->_code) {
         case (Login): {
             const auto loginRequest = dynamic_cast<LoginRequest*>(request);
-            if (!loginRequest) throw std::runtime_error("Couldn't convert request to login request!");
+            if (!loginRequest) return {{PROTOCOL_FAILURE, "Request type is invalid!"}, this};
 
-            return login(loginRequest->_username, loginRequest->_password);
+            try {
+                bool result = login(loginRequest->_username, loginRequest->_password);
+                if (result)
+                    return {{PROTOCOL_SUCCESS}, this}; // TODO: change to a new request handler that will replace the login one.
+
+                return {{PROTOCOL_FAILURE, "Couldn't verify user! Check user information and try again!"}, this};
+            }
+            catch (std::runtime_error& e) {
+                return {{PROTOCOL_FAILURE, e.what()}, this};
+            }
         }
         case (SignUp): {
             const auto signUpRequest = dynamic_cast<SignUpRequest*>(request);
-            if (!signUpRequest) throw std::runtime_error("Couldn't convert request to signup request!");
+            if (!signUpRequest) return {{PROTOCOL_FAILURE, "Request type is invalid!"}, this};
 
-            return signUp(signUpRequest->_username, signUpRequest->_password, signUpRequest->_email);
+            try {
+                signUp(signUpRequest->_username, signUpRequest->_password, signUpRequest->_email);
+            }
+            catch (std::runtime_error& e) {
+                return {{PROTOCOL_FAILURE, e.what()}, this};
+            }
+
+            return {{PROTOCOL_SUCCESS}, this}; // TODO: change to a new request handler that will replace the login one.
         }
         default:
-            throw std::runtime_error("Request code is invalid!");
+            return {{PROTOCOL_FAILURE, "Attribute 'code' is invalid!"}, this};
     }
 }
 
