@@ -53,6 +53,7 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
             try {
                 IRequest* request = requestHandler->deserializeRequest(msg);
                 IResult result = requestHandler->handleRequest(request);
+                delete request;
                 std::vector<char> serializedMsg = requestHandler->serializeResponse(result._response);
 
                 if (requestHandler != result._requestHandler) {
@@ -68,6 +69,11 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
             }
 
             std::cout << "Request handled successfully on thread: " << std::this_thread::get_id() << "\n";
+        }
+        else {
+            std::cout << "Client disconnected!\n";
+            delete requestHandler;
+            break;
         }
     }
 }

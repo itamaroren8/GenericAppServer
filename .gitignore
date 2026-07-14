@@ -45,7 +45,7 @@ Build/
 build-*/
 
 # Clion files
-.idea/
+S.idea/
 
 # CMake generated files
 CMakeFiles/
