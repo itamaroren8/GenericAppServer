@@ -4,6 +4,7 @@
 
 #ifndef APP_JSONDESERIALIZER_H
 #define APP_JSONDESERIALIZER_H
+#include <memory>
 #include <vector>
 
 #include "Requests.hpp"
@@ -11,7 +12,7 @@
 
 class JsonDeserializer {
 public:
-    static IRequest* deserializeLoginRequest(const std::string& buffer);
+    static std::unique_ptr<IRequest> deserializeLoginRequest(const std::string& buffer);
 };
 
 

@@ -9,7 +9,7 @@
 
 class Server {
 private:
-    Communicator* _communicator;
+    std::unique_ptr<Communicator> _communicator;
 public:
     Server();
     void run();

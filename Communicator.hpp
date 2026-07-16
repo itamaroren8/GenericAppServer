@@ -12,7 +12,7 @@
 
 class Communicator {
 private:
-    SqliteDatabase* _db;
+    std::unique_ptr<IDatabase> _db;
     std::vector<LoggedUser> _loggedUsers;
 public:
     Communicator();

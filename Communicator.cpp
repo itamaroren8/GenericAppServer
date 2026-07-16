@@ -16,7 +16,7 @@
 #include "LoginRequestHandler.hpp"
 
 Communicator::Communicator() {
-    _db = new SqliteDatabase(); // Interchangeable to any implemented database class
+    _db = std::unique_ptr<IDatabase>(); // Interchangeable to any implemented database class
     _db->open();
 }
 
@@ -42,7 +42,7 @@ void Communicator::listenToClients() {
 }
 
 void Communicator::handleClient(sockpp::tcp_socket socket) {
-    IRequestHandler* requestHandler = new LoginRequestHandler(_db, _loggedUsers);
+    std::unique_ptr<IRequestHandler> requestHandler = std::make_unique<LoginRequestHandler>(_db.get(), _loggedUsers);
     char buffer[BUFFER_SIZE];
 
     while (true) {
@@ -53,9 +53,8 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
                 IResult result = requestHandler->handleRequest(request);
                 std::string serializedMsg = requestHandler->serializeResponse(result._response);
 
-                if (requestHandler != result._requestHandler) {
-                    delete requestHandler;
-                    requestHandler = result._requestHandler;
+                if (requestHandler.get() != result._requestHandler) {
+                    requestHandler.reset(result._requestHandler);
                 }
 
                 socket.send(std::string(serializedMsg.begin(), serializedMsg.end()));

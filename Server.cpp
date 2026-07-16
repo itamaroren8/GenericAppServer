@@ -4,12 +4,8 @@
 
 #include "Server.hpp"
 
-#include <iostream>
-
-#include "SqliteDatabase.hpp"
-
 Server::Server() {
-    _communicator = new Communicator();
+    _communicator = std::make_unique<Communicator>();
 }
 
 void Server::run() {
