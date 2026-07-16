@@ -49,12 +49,11 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
         const ssize_t n = socket.read(buffer, sizeof(buffer)).value();
 
         if (n > 0) {
-            const auto msg = std::vector<char>(std::begin(buffer), std::end(buffer));
+            const auto msg = std::string(buffer);
             try {
                 IRequest* request = requestHandler->deserializeRequest(msg);
                 IResult result = requestHandler->handleRequest(request);
-                delete request;
-                std::vector<char> serializedMsg = requestHandler->serializeResponse(result._response);
+                std::string serializedMsg = requestHandler->serializeResponse(result._response);
 
                 if (requestHandler != result._requestHandler) {
                     delete requestHandler;
@@ -64,16 +63,11 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
                 socket.send(std::string(serializedMsg.begin(), serializedMsg.end()));
             }
             catch (std::runtime_error& e) {
-                std::vector<char> serializedMsg = requestHandler->serializeResponse({PROTOCOL_FAILURE, e.what()});
+                std::string serializedMsg = requestHandler->serializeResponse({PROTOCOL_FAILURE, e.what()});
                 socket.send(std::string(serializedMsg.begin(), serializedMsg.end()));
             }
 
             std::cout << "Request handled successfully on thread: " << std::this_thread::get_id() << "\n";
-        }
-        else {
-            std::cout << "Client disconnected!\n";
-            delete requestHandler;
-            break;
         }
     }
 }

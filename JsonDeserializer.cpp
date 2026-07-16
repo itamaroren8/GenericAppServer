@@ -12,8 +12,8 @@
  * INPUT: buffer: std::vector<char>.
  * OUTPUT: IRequest*(polymorphism pointer, can point to LoginRequest or SignUpRequest).
  */
-IRequest *JsonDeserializer::deserializeLoginRequest(const std::vector<char> &buffer) {
-    nlohmann::json data = nlohmann::json::parse(buffer.begin(), buffer.end());
+IRequest *JsonDeserializer::deserializeLoginRequest(const std::string &buffer) {
+    nlohmann::json data = nlohmann::json::parse(buffer);
 
     if (!data.contains("code") || !data["code"].is_number_integer()) throw std::runtime_error("Request invalid! No 'code' attribute found, or 'code' does not match 'integer' type!");
     switch (const int code = data["code"]) {

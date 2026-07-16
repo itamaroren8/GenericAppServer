@@ -11,7 +11,7 @@
 
 class JsonSerializer {
 public:
-    static std::vector<char> serializeLoginResponse(const IResponse& response);
+    static std::string serializeLoginResponse(const IResponse& response);
 };
 
 

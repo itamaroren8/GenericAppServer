@@ -14,8 +14,8 @@ class IRequestHandler {
 public:
     virtual IResult handleRequest(IRequest*) = 0;
     virtual ~IRequestHandler() = default;
-    virtual std::vector<char> serializeResponse(const IResponse&) = 0;
-    virtual IRequest* deserializeRequest(const std::vector<char>&) = 0;
+    virtual std::string serializeResponse(const IResponse&) = 0;
+    virtual IRequest* deserializeRequest(const std::string&) = 0;
 };
 
 

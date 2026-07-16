@@ -6,11 +6,10 @@
 
 #include <nlohmann/json.hpp>
 
-std::vector<char> JsonSerializer::serializeLoginResponse(const IResponse& response) {
+std::string JsonSerializer::serializeLoginResponse(const IResponse& response) {
     nlohmann::json j;
     j["code"] = response._code;
     j["message"] = response._message;
 
-    std::string jsonStr = j.dump();
-    return {jsonStr.begin(), jsonStr.end()};
+    return j.dump();
 }

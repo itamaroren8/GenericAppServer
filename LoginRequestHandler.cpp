@@ -18,9 +18,9 @@ LoginRequestHandler::LoginRequestHandler(IDatabase *db, std::vector<LoggedUser>&
 /*
  * Serializes a response with the corresponding serializer.
  * INPUT: response: IResponse.
- * OUTPUT: std::vector<char>.
+ * OUTPUT: string.
  */
-std::vector<char> LoginRequestHandler::serializeResponse(const IResponse & response) {
+std::string LoginRequestHandler::serializeResponse(const IResponse & response) {
     return JsonSerializer::serializeLoginResponse(response);
 }
 
@@ -29,7 +29,7 @@ std::vector<char> LoginRequestHandler::serializeResponse(const IResponse & respo
  * INPUT: buffer: std::vector<char>.
  * OUTPUT: IRequest* (Uses polymorphism to send the correct type of request).
  */
-IRequest *LoginRequestHandler::deserializeRequest(const std::vector<char> & buffer) {
+IRequest *LoginRequestHandler::deserializeRequest(const std::string& buffer) {
     return JsonDeserializer::deserializeLoginRequest(buffer);
 }
 
