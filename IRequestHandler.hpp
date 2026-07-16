@@ -6,8 +6,8 @@
 #define APP_IREQUESTHANDLER_H
 #include <vector>
 
-#include "Requests.h"
-#include "results.h"
+#include "Requests.hpp"
+#include "results.hpp"
 
 
 class IRequestHandler {

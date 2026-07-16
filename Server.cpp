@@ -2,11 +2,11 @@
 // Created by itamar on 7/5/26.
 //
 
-#include "Server.h"
+#include "Server.hpp"
 
 #include <iostream>
 
-#include "SqliteDatabase.h"
+#include "SqliteDatabase.hpp"
 
 Server::Server() {
     _communicator = new Communicator();

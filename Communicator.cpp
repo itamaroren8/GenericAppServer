@@ -2,18 +2,18 @@
 // Created by itamar on 7/9/26.
 //
 
-#include "Communicator.h"
+#include "Communicator.hpp"
 
-#include <complex.h>
+#include <complex>
 
-#include "CONSTANTS.h"
+#include "CONSTANTS.hpp"
 #include <iostream>
 #include <thread>
 
-#include "IRequestHandler.h"
-#include "JsonDeserializer.h"
-#include "JsonSerializer.h"
-#include "LoginRequestHandler.h"
+#include "IRequestHandler.hpp"
+#include "JsonDeserializer.hpp"
+#include "JsonSerializer.hpp"
+#include "LoginRequestHandler.hpp"
 
 Communicator::Communicator() {
     _db = new SqliteDatabase(); // Interchangeable to any implemented database class
@@ -46,9 +46,7 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
     char buffer[BUFFER_SIZE];
 
     while (true) {
-        const ssize_t n = socket.read(buffer, sizeof(buffer)).value();
-
-        if (n > 0) {
+        if (const ssize_t n = socket.read(buffer, sizeof(buffer)).value(); n > 0) {
             const auto msg = std::string(buffer);
             try {
                 IRequest* request = requestHandler->deserializeRequest(msg);

@@ -6,7 +6,7 @@
 #define APP_SQLITEDATABASE_H
 #include <sqlite3.h>
 
-#include "IDatabase.h"
+#include "IDatabase.hpp"
 
 #define DATEBASE_FILE "sqliteDB.db"
 

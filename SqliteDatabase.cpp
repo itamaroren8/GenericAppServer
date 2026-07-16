@@ -2,11 +2,11 @@
 // Created by itamar on 7/5/26.
 //
 
-#include "SqliteDatabase.h"
+#include "SqliteDatabase.hpp"
 
 #include <iostream>
 
-#include "SqliteStatements.h"
+#include "SqliteStatements.hpp"
 
 SqliteDatabase::~SqliteDatabase() {
     SqliteDatabase::close();

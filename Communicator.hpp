@@ -6,8 +6,8 @@
 #define APP_COMMUNICATOR_H
 #include <sockpp/tcp_acceptor.h>
 
-#include "LoggedUser.h"
-#include "SqliteDatabase.h"
+#include "LoggedUser.hpp"
+#include "SqliteDatabase.hpp"
 
 
 class Communicator {

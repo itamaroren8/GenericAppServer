@@ -4,8 +4,8 @@
 
 #ifndef APP_RESULTS_H
 #define APP_RESULTS_H
-#include "IRequestHandler.h"
-#include "responses.h"
+#include "IRequestHandler.hpp"
+#include "responses.hpp"
 
 class IRequestHandler;
 

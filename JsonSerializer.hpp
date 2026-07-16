@@ -6,7 +6,7 @@
 #define APP_JSONSERIALIZER_H
 #include <vector>
 
-#include "responses.h"
+#include "responses.hpp"
 
 
 class JsonSerializer {

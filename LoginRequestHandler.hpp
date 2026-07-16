@@ -4,10 +4,10 @@
 
 #ifndef APP_LOGINREQUESTHANDLER_H
 #define APP_LOGINREQUESTHANDLER_H
-#include "IDatabase.h"
-#include "IRequestHandler.h"
-#include "LoggedUser.h"
-#include "Requests.h"
+#include "IDatabase.hpp"
+#include "IRequestHandler.hpp"
+#include "LoggedUser.hpp"
+#include "Requests.hpp"
 
 
 class LoginRequestHandler : public IRequestHandler {

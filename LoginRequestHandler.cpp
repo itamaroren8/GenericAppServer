@@ -2,16 +2,16 @@
 // Created by itamar on 7/12/26.
 //
 
-#include "LoginRequestHandler.h"
+#include "LoginRequestHandler.hpp"
 
 #include <stdexcept>
 #include <utility>
 
-#include "CONSTANTS.h"
-#include "JsonDeserializer.h"
-#include "JsonSerializer.h"
-#include "LoggedUser.h"
-#include "Requests.h"
+#include "CONSTANTS.hpp"
+#include "JsonDeserializer.hpp"
+#include "JsonSerializer.hpp"
+#include "LoggedUser.hpp"
+#include "Requests.hpp"
 
 LoginRequestHandler::LoginRequestHandler(IDatabase *db, std::vector<LoggedUser>& loggedUsers) : _db(db), _loggedUsers(loggedUsers) {}
 

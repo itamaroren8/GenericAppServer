@@ -2,10 +2,10 @@
 // Created by itamar on 7/13/26.
 //
 
-#include "JsonDeserializer.h"
+#include "JsonDeserializer.hpp"
 #include <nlohmann/json.hpp>
 
-#include "LoginRequestHandler.h"
+#include "LoginRequestHandler.hpp"
 
 /*
  * Deserializes a buffer to a login request.
