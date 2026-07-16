@@ -20,7 +20,7 @@ public:
     std::unique_ptr<IRequest> deserializeRequest(const std::string& buffer) override;
 private:
     bool login(const std::string& username, const std::string &password);
-    bool signUp(const std::string& username, const std::string& password, const std::string& email);
+    bool signUp(const std::string& username, const std::string& password);
     IDatabase* _db;
     std::vector<LoggedUser>& _loggedUsers;
 };

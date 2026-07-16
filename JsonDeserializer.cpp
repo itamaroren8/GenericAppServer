@@ -31,10 +31,8 @@ std::unique_ptr<IRequest> JsonDeserializer::deserializeLoginRequest(const std::s
             const std::string username = data["username"];
             if (!data.contains("password") || !data["password"].is_string()) throw std::runtime_error("Request invalid! No 'password' attribute found, or 'password' does not match 'string' type!");
             const std::string password = data["password"];
-            if (!data.contains("email") || !data["email"].is_string()) throw std::runtime_error("Request invalid! No 'email' attribute found, or 'email' does not match 'string' type!");
-            const std::string email = data["email"];
 
-            auto signUpRequest = std::make_unique<SignUpRequest>(code, username, password, email);
+            auto signUpRequest = std::make_unique<SignUpRequest>(code, username, password);
             return signUpRequest;
         }
         default:

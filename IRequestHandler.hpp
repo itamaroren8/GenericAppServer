@@ -4,7 +4,6 @@
 
 #ifndef APP_IREQUESTHANDLER_H
 #define APP_IREQUESTHANDLER_H
-#include <vector>
 
 #include "Requests.hpp"
 #include "results.hpp"

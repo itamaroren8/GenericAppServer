@@ -41,7 +41,8 @@ add_executable(App main.cpp
         JsonSerializer.cpp
         JsonSerializer.hpp
         responses.hpp
-        results.hpp)
+        results.hpp
+        Timer.h)
 
 target_include_directories(App PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(App PRIVATE ${SQLite3_LIBRARIES})

@@ -23,10 +23,9 @@ public:
 
 class SignUpRequest : public IRequest {
 public:
-    SignUpRequest(const int code, std::string username, std::string password, std::string email) : IRequest(code), _username(std::move(username)), _password(std::move(password)), _email(std::move(email)) {}
+    SignUpRequest(const int code, std::string username, std::string password) : IRequest(code), _username(std::move(username)), _password(std::move(password)) {}
     std::string _username;
     std::string _password;
-    std::string _email;
 };
 
 #endif //APP_REQUESTS_H

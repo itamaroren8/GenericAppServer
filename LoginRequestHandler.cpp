@@ -59,7 +59,7 @@ IResult LoginRequestHandler::handleRequest(std::unique_ptr<IRequest> request) {
             if (!signUpRequest) return {{PROTOCOL_FAILURE, "Request type is invalid!"}, this};
 
             try {
-                signUp(signUpRequest->_username, signUpRequest->_password, signUpRequest->_email);
+                signUp(signUpRequest->_username, signUpRequest->_password);
             }
             catch (std::runtime_error& e) {
                 return {{PROTOCOL_FAILURE, e.what()}, this};
@@ -90,8 +90,8 @@ bool LoginRequestHandler::login(const std::string& username, const std::string &
  * INPUT: username: string. password: string. email: string.
  * OUTPUT: true for success. std::runtime_error for errors.
  */
-bool LoginRequestHandler::signUp(const std::string& username, const std::string& password, const std::string& email) {
-    _db->addUser(username, password, email);
+bool LoginRequestHandler::signUp(const std::string& username, const std::string& password) {
+    _db->addUser(username, password);
     _loggedUsers.push_back(LoggedUser{username});
     return true;
 }
