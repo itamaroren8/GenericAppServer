@@ -16,7 +16,7 @@
 #include "LoginRequestHandler.hpp"
 
 Communicator::Communicator() {
-    _db = std::unique_ptr<IDatabase>(); // Interchangeable to any implemented database class
+    _db = std::make_unique<SqliteDatabase>(); // Interchangeable to any implemented database class
     _db->open();
 }
 
@@ -49,8 +49,8 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
         if (const ssize_t n = socket.read(buffer, sizeof(buffer)).value(); n > 0) {
             const auto msg = std::string(buffer);
             try {
-                IRequest* request = requestHandler->deserializeRequest(msg);
-                IResult result = requestHandler->handleRequest(request);
+                auto request = requestHandler->deserializeRequest(msg);
+                IResult result = requestHandler->handleRequest(std::move(request));
                 std::string serializedMsg = requestHandler->serializeResponse(result._response);
 
                 if (requestHandler.get() != result._requestHandler) {
@@ -65,6 +65,10 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
             }
 
             std::cout << "Request handled successfully on thread: " << std::this_thread::get_id() << "\n";
+        }
+        else {
+            std::cout << "Client disconnected on thread: " << std::this_thread::get_id() << "\n";
+            break;
         }
     }
 }

@@ -4,6 +4,8 @@
 
 #ifndef APP_LOGINREQUESTHANDLER_H
 #define APP_LOGINREQUESTHANDLER_H
+#include <memory>
+
 #include "IDatabase.hpp"
 #include "IRequestHandler.hpp"
 #include "LoggedUser.hpp"
@@ -13,9 +15,9 @@
 class LoginRequestHandler : public IRequestHandler {
 public:
     LoginRequestHandler(IDatabase* db, std::vector<LoggedUser>& loggedUsers);
-    IResult handleRequest(IRequest* request) override;
+    IResult handleRequest(std::unique_ptr<IRequest> request) override;
     std::string serializeResponse(const IResponse &) override;
-    IRequest* deserializeRequest(const std::string& buffer) override;
+    std::unique_ptr<IRequest> deserializeRequest(const std::string& buffer) override;
 private:
     bool login(const std::string& username, const std::string &password);
     bool signUp(const std::string& username, const std::string& password, const std::string& email);

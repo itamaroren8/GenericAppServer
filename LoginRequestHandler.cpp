@@ -29,7 +29,7 @@ std::string LoginRequestHandler::serializeResponse(const IResponse & response) {
  * INPUT: buffer: std::vector<char>.
  * OUTPUT: IRequest* (Uses polymorphism to send the correct type of request).
  */
-IRequest *LoginRequestHandler::deserializeRequest(const std::string& buffer) {
+std::unique_ptr<IRequest> LoginRequestHandler::deserializeRequest(const std::string& buffer) {
     return JsonDeserializer::deserializeLoginRequest(buffer);
 }
 
@@ -38,15 +38,14 @@ IRequest *LoginRequestHandler::deserializeRequest(const std::string& buffer) {
  * INPUT: request: LoginRequest*.
  * OUTPUT: true for success. false for failure. std::runtime_error for errors.
  */
-IResult LoginRequestHandler::handleRequest(IRequest* request) {
+IResult LoginRequestHandler::handleRequest(std::unique_ptr<IRequest> request) {
     switch (request->_code) {
         case (Login): {
-            const auto loginRequest = dynamic_cast<LoginRequest*>(request);
+            const auto loginRequest = dynamic_cast<LoginRequest*>(request.get());
             if (!loginRequest) return {{PROTOCOL_FAILURE, "Request type is invalid!"}, this};
 
             try {
-                bool result = login(loginRequest->_username, loginRequest->_password);
-                if (result)
+                if (login(loginRequest->_username, loginRequest->_password))
                     return {{PROTOCOL_SUCCESS}, this}; // TODO: change to a new request handler that will replace the login one.
 
                 return {{PROTOCOL_FAILURE, "Couldn't verify user! Check user information and try again!"}, this};
@@ -56,7 +55,7 @@ IResult LoginRequestHandler::handleRequest(IRequest* request) {
             }
         }
         case (SignUp): {
-            const auto signUpRequest = dynamic_cast<SignUpRequest*>(request);
+            const auto signUpRequest = dynamic_cast<SignUpRequest*>(request.get());
             if (!signUpRequest) return {{PROTOCOL_FAILURE, "Request type is invalid!"}, this};
 
             try {
