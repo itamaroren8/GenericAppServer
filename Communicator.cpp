@@ -47,7 +47,7 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
 
     while (true) {
         if (const ssize_t n = socket.read(buffer, sizeof(buffer)).value(); n > 0) {
-            const auto msg = std::string(buffer);
+            const auto msg = std::string(buffer, n);
             try {
                 auto request = requestHandler->deserializeRequest(msg);
                 IResult result = requestHandler->handleRequest(std::move(request));
