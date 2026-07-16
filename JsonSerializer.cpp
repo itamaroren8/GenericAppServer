@@ -2,7 +2,7 @@
 // Created by itamar on 7/13/26.
 //
 
-#include "JsonSerializer.h"
+#include "JsonSerializer.hpp"
 
 #include <nlohmann/json.hpp>
 

@@ -2,21 +2,21 @@
 // Created by itamar on 7/9/26.
 //
 
-#include "Communicator.h"
+#include "Communicator.hpp"
 
-#include <complex.h>
+#include <complex>
 
-#include "CONSTANTS.h"
+#include "CONSTANTS.hpp"
 #include <iostream>
 #include <thread>
 
-#include "IRequestHandler.h"
-#include "JsonDeserializer.h"
-#include "JsonSerializer.h"
-#include "LoginRequestHandler.h"
+#include "IRequestHandler.hpp"
+#include "JsonDeserializer.hpp"
+#include "JsonSerializer.hpp"
+#include "LoginRequestHandler.hpp"
 
 Communicator::Communicator() {
-    _db = new SqliteDatabase(); // Interchangeable to any implemented database class
+    _db = std::make_unique<SqliteDatabase>(); // Interchangeable to any implemented database class
     _db->open();
 }
 
@@ -42,22 +42,19 @@ void Communicator::listenToClients() {
 }
 
 void Communicator::handleClient(sockpp::tcp_socket socket) {
-    IRequestHandler* requestHandler = new LoginRequestHandler(_db, _loggedUsers);
+    std::unique_ptr<IRequestHandler> requestHandler = std::make_unique<LoginRequestHandler>(_db.get(), _loggedUsers);
     char buffer[BUFFER_SIZE];
 
     while (true) {
-        const ssize_t n = socket.read(buffer, sizeof(buffer)).value();
-
-        if (n > 0) {
-            const auto msg = std::string(buffer);
+        if (const ssize_t n = socket.read(buffer, sizeof(buffer)).value(); n > 0) {
+            const auto msg = std::string(buffer, n);
             try {
-                IRequest* request = requestHandler->deserializeRequest(msg);
-                IResult result = requestHandler->handleRequest(request);
+                auto request = requestHandler->deserializeRequest(msg);
+                IResult result = requestHandler->handleRequest(std::move(request));
                 std::string serializedMsg = requestHandler->serializeResponse(result._response);
 
-                if (requestHandler != result._requestHandler) {
-                    delete requestHandler;
-                    requestHandler = result._requestHandler;
+                if (requestHandler.get() != result._requestHandler) {
+                    requestHandler.reset(result._requestHandler);
                 }
 
                 socket.send(std::string(serializedMsg.begin(), serializedMsg.end()));
@@ -68,6 +65,10 @@ void Communicator::handleClient(sockpp::tcp_socket socket) {
             }
 
             std::cout << "Request handled successfully on thread: " << std::this_thread::get_id() << "\n";
+        }
+        else {
+            std::cout << "Client disconnected on thread: " << std::this_thread::get_id() << "\n";
+            break;
         }
     }
 }

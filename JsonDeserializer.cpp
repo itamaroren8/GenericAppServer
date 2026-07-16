@@ -2,17 +2,17 @@
 // Created by itamar on 7/13/26.
 //
 
-#include "JsonDeserializer.h"
+#include "JsonDeserializer.hpp"
 #include <nlohmann/json.hpp>
 
-#include "LoginRequestHandler.h"
+#include "LoginRequestHandler.hpp"
 
 /*
  * Deserializes a buffer to a login request.
  * INPUT: buffer: std::vector<char>.
  * OUTPUT: IRequest*(polymorphism pointer, can point to LoginRequest or SignUpRequest).
  */
-IRequest *JsonDeserializer::deserializeLoginRequest(const std::string &buffer) {
+std::unique_ptr<IRequest> JsonDeserializer::deserializeLoginRequest(const std::string &buffer) {
     nlohmann::json data = nlohmann::json::parse(buffer);
 
     if (!data.contains("code") || !data["code"].is_number_integer()) throw std::runtime_error("Request invalid! No 'code' attribute found, or 'code' does not match 'integer' type!");
@@ -23,7 +23,7 @@ IRequest *JsonDeserializer::deserializeLoginRequest(const std::string &buffer) {
             if (!data.contains("password") || !data["password"].is_string()) throw std::runtime_error("Request invalid! No 'password' attribute found, or 'password' does not match 'string' type!");
             const std::string password = data["password"];
 
-            const auto loginRequest = new LoginRequest(code, username, password);
+            auto loginRequest = std::make_unique<LoginRequest>(code, username, password);
             return loginRequest;
         }
         case SignUp: {
@@ -31,10 +31,8 @@ IRequest *JsonDeserializer::deserializeLoginRequest(const std::string &buffer) {
             const std::string username = data["username"];
             if (!data.contains("password") || !data["password"].is_string()) throw std::runtime_error("Request invalid! No 'password' attribute found, or 'password' does not match 'string' type!");
             const std::string password = data["password"];
-            if (!data.contains("email") || !data["email"].is_string()) throw std::runtime_error("Request invalid! No 'email' attribute found, or 'email' does not match 'string' type!");
-            const std::string email = data["email"];
 
-            const auto signUpRequest = new SignUpRequest(code, username, password, email);
+            auto signUpRequest = std::make_unique<SignUpRequest>(code, username, password);
             return signUpRequest;
         }
         default:

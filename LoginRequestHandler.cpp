@@ -2,16 +2,16 @@
 // Created by itamar on 7/12/26.
 //
 
-#include "LoginRequestHandler.h"
+#include "LoginRequestHandler.hpp"
 
 #include <stdexcept>
 #include <utility>
 
-#include "CONSTANTS.h"
-#include "JsonDeserializer.h"
-#include "JsonSerializer.h"
-#include "LoggedUser.h"
-#include "Requests.h"
+#include "CONSTANTS.hpp"
+#include "JsonDeserializer.hpp"
+#include "JsonSerializer.hpp"
+#include "LoggedUser.hpp"
+#include "Requests.hpp"
 
 LoginRequestHandler::LoginRequestHandler(IDatabase *db, std::vector<LoggedUser>& loggedUsers) : _db(db), _loggedUsers(loggedUsers) {}
 
@@ -29,7 +29,7 @@ std::string LoginRequestHandler::serializeResponse(const IResponse & response) {
  * INPUT: buffer: std::vector<char>.
  * OUTPUT: IRequest* (Uses polymorphism to send the correct type of request).
  */
-IRequest *LoginRequestHandler::deserializeRequest(const std::string& buffer) {
+std::unique_ptr<IRequest> LoginRequestHandler::deserializeRequest(const std::string& buffer) {
     return JsonDeserializer::deserializeLoginRequest(buffer);
 }
 
@@ -38,15 +38,14 @@ IRequest *LoginRequestHandler::deserializeRequest(const std::string& buffer) {
  * INPUT: request: LoginRequest*.
  * OUTPUT: true for success. false for failure. std::runtime_error for errors.
  */
-IResult LoginRequestHandler::handleRequest(IRequest* request) {
+IResult LoginRequestHandler::handleRequest(std::unique_ptr<IRequest> request) {
     switch (request->_code) {
         case (Login): {
-            const auto loginRequest = dynamic_cast<LoginRequest*>(request);
+            const auto loginRequest = dynamic_cast<LoginRequest*>(request.get());
             if (!loginRequest) return {{PROTOCOL_FAILURE, "Request type is invalid!"}, this};
 
             try {
-                bool result = login(loginRequest->_username, loginRequest->_password);
-                if (result)
+                if (login(loginRequest->_username, loginRequest->_password))
                     return {{PROTOCOL_SUCCESS}, this}; // TODO: change to a new request handler that will replace the login one.
 
                 return {{PROTOCOL_FAILURE, "Couldn't verify user! Check user information and try again!"}, this};
@@ -56,11 +55,11 @@ IResult LoginRequestHandler::handleRequest(IRequest* request) {
             }
         }
         case (SignUp): {
-            const auto signUpRequest = dynamic_cast<SignUpRequest*>(request);
+            const auto signUpRequest = dynamic_cast<SignUpRequest*>(request.get());
             if (!signUpRequest) return {{PROTOCOL_FAILURE, "Request type is invalid!"}, this};
 
             try {
-                signUp(signUpRequest->_username, signUpRequest->_password, signUpRequest->_email);
+                signUp(signUpRequest->_username, signUpRequest->_password);
             }
             catch (std::runtime_error& e) {
                 return {{PROTOCOL_FAILURE, e.what()}, this};
@@ -91,8 +90,8 @@ bool LoginRequestHandler::login(const std::string& username, const std::string &
  * INPUT: username: string. password: string. email: string.
  * OUTPUT: true for success. std::runtime_error for errors.
  */
-bool LoginRequestHandler::signUp(const std::string& username, const std::string& password, const std::string& email) {
-    _db->addUser(username, password, email);
+bool LoginRequestHandler::signUp(const std::string& username, const std::string& password) {
+    _db->addUser(username, password);
     _loggedUsers.push_back(LoggedUser{username});
     return true;
 }

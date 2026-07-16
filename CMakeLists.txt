@@ -23,25 +23,26 @@ fetchcontent_declare(
 FetchContent_MakeAvailable(json)
 
 add_executable(App main.cpp
-        IDatabase.h
+        IDatabase.hpp
         SqliteDatabase.cpp
-        SqliteDatabase.h
+        SqliteDatabase.hpp
         Server.cpp
-        Server.h
+        Server.hpp
         Communicator.cpp
-        Communicator.h
-        CONSTANTS.h
-        IRequestHandler.h
+        Communicator.hpp
+        CONSTANTS.hpp
+        IRequestHandler.hpp
         LoginRequestHandler.cpp
-        LoginRequestHandler.h
-        Requests.h
-        LoggedUser.h
+        LoginRequestHandler.hpp
+        Requests.hpp
+        LoggedUser.hpp
         JsonDeserializer.cpp
-        JsonDeserializer.h
+        JsonDeserializer.hpp
         JsonSerializer.cpp
-        JsonSerializer.h
-        responses.h
-        results.h)
+        JsonSerializer.hpp
+        responses.hpp
+        results.hpp
+        Timer.h)
 
 target_include_directories(App PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(App PRIVATE ${SQLite3_LIBRARIES})

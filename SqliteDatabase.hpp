@@ -6,7 +6,7 @@
 #define APP_SQLITEDATABASE_H
 #include <sqlite3.h>
 
-#include "IDatabase.h"
+#include "IDatabase.hpp"
 
 #define DATEBASE_FILE "sqliteDB.db"
 
@@ -16,11 +16,18 @@ public:
     ~SqliteDatabase() override;
     int open() override;
     int close() override;
-    int addUser(std::string username, std::string password, std::string email) override;
+
+    // Users
+    int addUser(std::string username, std::string password) override;
     int removeUser(std::string username, std::string password) override;
     int changeUserPassword(std::string username, std::string currentPassword, std::string newPassword) override;
     bool verifyUser(std::string username, std::string password) override;
     std::vector<std::string> getUsers() override;
+
+    // Timers
+    int addTimer(std::string timerName, std::string timerCreator, int timerStart, int timerDuration) override;
+    int deleteTimer(int timerId) override;
+    std::vector<Timer> getTimers() override;
 private:
     sqlite3* _db;
     char* _errMsg;

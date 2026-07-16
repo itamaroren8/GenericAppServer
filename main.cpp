@@ -1,9 +1,10 @@
 #include <iostream>
+#include <nlohmann/json.hpp>
 
-#include "Server.h"
+#include "Server.hpp"
 
 
 int main() {
-    auto* server = new Server();
+    auto server = std::make_unique<Server>();
     server->run();
 }
