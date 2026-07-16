@@ -11,7 +11,7 @@
 
 class JsonDeserializer {
 public:
-    static IRequest* deserializeLoginRequest(const std::vector<char>& buffer);
+    static IRequest* deserializeLoginRequest(const std::string& buffer);
 };
 
 
