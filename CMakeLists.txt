@@ -14,20 +14,40 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(sockpp)
 
+fetchcontent_declare(
+        json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG master
+)
+
+FetchContent_MakeAvailable(json)
+
 add_executable(App main.cpp
-        IDatabase.h
+        IDatabase.hpp
         SqliteDatabase.cpp
-        SqliteDatabase.h
+        SqliteDatabase.hpp
         Server.cpp
-        Server.h
+        Server.hpp
         Communicator.cpp
-        Communicator.h
-        CONSTANTS.h)
+        Communicator.hpp
+        CONSTANTS.hpp
+        IRequestHandler.hpp
+        LoginRequestHandler.cpp
+        LoginRequestHandler.hpp
+        Requests.hpp
+        LoggedUser.hpp
+        JsonDeserializer.cpp
+        JsonDeserializer.hpp
+        JsonSerializer.cpp
+        JsonSerializer.hpp
+        responses.hpp
+        results.hpp)
 
 target_include_directories(App PRIVATE ${SQLite3_INCLUDE_DIRS})
 target_link_libraries(App PRIVATE ${SQLite3_LIBRARIES})
 target_include_directories(App PRIVATE ${sockpp_SOURCE_DIR}/include)
 target_link_libraries(App PRIVATE Sockpp::sockpp)
+target_link_libraries(App PRIVATE nlohmann_json::nlohmann_json)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_package(Threads REQUIRED)

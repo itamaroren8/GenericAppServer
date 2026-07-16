@@ -4,12 +4,12 @@
 
 #ifndef APP_SERVER_H
 #define APP_SERVER_H
-#include "Communicator.h"
+#include "Communicator.hpp"
 
 
 class Server {
 private:
-    Communicator* _communicator;
+    std::unique_ptr<Communicator> _communicator;
 public:
     Server();
     void run();

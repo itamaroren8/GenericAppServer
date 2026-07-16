@@ -2,11 +2,11 @@
 // Created by itamar on 7/5/26.
 //
 
-#include "SqliteDatabase.h"
+#include "SqliteDatabase.hpp"
 
 #include <iostream>
 
-#include "SqliteStatements.h"
+#include "SqliteStatements.hpp"
 
 SqliteDatabase::~SqliteDatabase() {
     SqliteDatabase::close();
@@ -46,7 +46,8 @@ int SqliteDatabase::close() {
  */
 int SqliteDatabase::addUser(const std::string username, const std::string password) {
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(_db, ADD_NEW_USER, -1, &stmt, nullptr);
+    if (sqlite3_prepare_v2(_db, ADD_NEW_USER, -1, &stmt, nullptr) != SQLITE_OK)
+        throw std::runtime_error("Failed to prepare statement!");
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
@@ -69,7 +70,8 @@ int SqliteDatabase::removeUser(const std::string username, const std::string pas
     if (!verifyUser(username, password)) throw std::runtime_error("Couldn't verify user. Please check username and password!");
 
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(_db, DELETE_EXISTING_USER, -1, &stmt, nullptr);
+    if (sqlite3_prepare_v2(_db, DELETE_EXISTING_USER, -1, &stmt, nullptr) != SQLITE_OK)
+        throw std::runtime_error("Failed to prepare statement!");
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
 
@@ -90,7 +92,8 @@ int SqliteDatabase::changeUserPassword(const std::string username, const std::st
     if (!verifyUser(username, currentPassword)) throw std::runtime_error("Couldn't verify user. Please check username and password!");
 
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(_db, UPDATE_PLAYER_PASSWORD, -1, &stmt, nullptr);
+    if (sqlite3_prepare_v2(_db, UPDATE_PLAYER_PASSWORD, -1, &stmt, nullptr) != SQLITE_OK)
+        throw std::runtime_error("Failed to prepare statement!");
 
     sqlite3_bind_text(stmt, 1, newPassword.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, username.c_str(), -1, SQLITE_TRANSIENT);
@@ -110,7 +113,8 @@ int SqliteDatabase::changeUserPassword(const std::string username, const std::st
  */
 std::vector<std::string> SqliteDatabase::getUsers() {
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(_db, GET_ALL_USERS, -1, &stmt, nullptr);
+    if (sqlite3_prepare_v2(_db, GET_ALL_USERS, -1, &stmt, nullptr) != SQLITE_OK)
+        throw std::runtime_error("Failed to prepare statement!");
 
     std::vector<std::string> users;
     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -129,13 +133,14 @@ std::vector<std::string> SqliteDatabase::getUsers() {
  */
 bool SqliteDatabase::verifyUser(const std::string username, const std::string password) {
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(_db, VERIFY_USER, -1, &stmt, nullptr);
+    if (sqlite3_prepare_v2(_db, VERIFY_USER, -1, &stmt, nullptr) != SQLITE_OK)
+        throw std::runtime_error("Failed to prepare statement!");
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {
-        int result = sqlite3_column_int(stmt, 0) == 1;
+        const int result = sqlite3_column_int(stmt, 0) == 1;
         sqlite3_finalize(stmt);
         return result;
     }

@@ -2,13 +2,21 @@
 // Created by itamar on 7/9/26.
 //
 
-#include "Communicator.h"
-#include "CONSTANTS.h"
+#include "Communicator.hpp"
+
+#include <complex>
+
+#include "CONSTANTS.hpp"
 #include <iostream>
 #include <thread>
 
+#include "IRequestHandler.hpp"
+#include "JsonDeserializer.hpp"
+#include "JsonSerializer.hpp"
+#include "LoginRequestHandler.hpp"
+
 Communicator::Communicator() {
-    _db = new SqliteDatabase(); // Interchangeable to any implemented database class
+    _db = std::make_unique<SqliteDatabase>(); // Interchangeable to any implemented database class
     _db->open();
 }
 
@@ -34,19 +42,33 @@ void Communicator::listenToClients() {
 }
 
 void Communicator::handleClient(sockpp::tcp_socket socket) {
+    std::unique_ptr<IRequestHandler> requestHandler = std::make_unique<LoginRequestHandler>(_db.get(), _loggedUsers);
     char buffer[BUFFER_SIZE];
-    ssize_t n = socket.read(buffer, sizeof(buffer)).value();
-    if (n > 0) {
-        std::string msg(buffer, n);
-        std::cout << msg << "\n";
 
-        try {
-            int score = _db->getUserScore(msg);
-            const std::string message = "User score: " + std::to_string(score);
-            socket.send(message);
+    while (true) {
+        if (const ssize_t n = socket.read(buffer, sizeof(buffer)).value(); n > 0) {
+            const auto msg = std::string(buffer);
+            try {
+                auto request = requestHandler->deserializeRequest(msg);
+                IResult result = requestHandler->handleRequest(std::move(request));
+                std::string serializedMsg = requestHandler->serializeResponse(result._response);
+
+                if (requestHandler.get() != result._requestHandler) {
+                    requestHandler.reset(result._requestHandler);
+                }
+
+                socket.send(std::string(serializedMsg.begin(), serializedMsg.end()));
+            }
+            catch (std::runtime_error& e) {
+                std::string serializedMsg = requestHandler->serializeResponse({PROTOCOL_FAILURE, e.what()});
+                socket.send(std::string(serializedMsg.begin(), serializedMsg.end()));
+            }
+
+            std::cout << "Request handled successfully on thread: " << std::this_thread::get_id() << "\n";
         }
-        catch (std::runtime_error e) {
-            socket.send(e.what());
+        else {
+            std::cout << "Client disconnected on thread: " << std::this_thread::get_id() << "\n";
+            break;
         }
     }
 }

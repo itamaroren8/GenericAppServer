@@ -2,14 +2,10 @@
 // Created by itamar on 7/5/26.
 //
 
-#include "Server.h"
-
-#include <iostream>
-
-#include "SqliteDatabase.h"
+#include "Server.hpp"
 
 Server::Server() {
-    _communicator = new Communicator();
+    _communicator = std::make_unique<Communicator>();
 }
 
 void Server::run() {
