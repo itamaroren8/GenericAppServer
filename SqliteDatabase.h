@@ -16,7 +16,7 @@ public:
     ~SqliteDatabase() override;
     int open() override;
     int close() override;
-    int addUser(std::string username, std::string password, std::string email) override;
+    int addUser(std::string username, std::string password) override;
     int removeUser(std::string username, std::string password) override;
     int changeUserPassword(std::string username, std::string currentPassword, std::string newPassword) override;
     bool verifyUser(std::string username, std::string password) override;

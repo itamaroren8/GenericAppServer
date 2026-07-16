@@ -44,13 +44,12 @@ int SqliteDatabase::close() {
  * INPUT: username: string. password: string. email: string.
  * OUTPUT: 0 for success. std::runtime_error for failure.
  */
-int SqliteDatabase::addUser(const std::string username, const std::string password, const std::string email) {
+int SqliteDatabase::addUser(const std::string username, const std::string password) {
     sqlite3_stmt* stmt;
     sqlite3_prepare_v2(_db, ADD_NEW_USER, -1, &stmt, nullptr);
 
     sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 3, email.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         sqlite3_finalize(stmt);
