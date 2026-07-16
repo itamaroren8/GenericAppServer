@@ -24,6 +24,10 @@ int SqliteDatabase::open() {
         throw std::runtime_error(_errMsg);
     }
 
+    if (sqlite3_exec(_db, CREATE_TIMERS_TABLE, nullptr, nullptr, &_errMsg) != SQLITE_OK) {
+        throw std::runtime_error(_errMsg);
+    }
+
     return 0;
 }
 
@@ -147,4 +151,60 @@ bool SqliteDatabase::verifyUser(const std::string username, const std::string pa
 
     sqlite3_finalize(stmt);
     throw std::runtime_error("Verifying user failed!");
+}
+
+int SqliteDatabase::addTimer(std::string timerName, std::string timerCreator, int timerStart, int timerDuration) {
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(_db, ADD_NEW_TIMER, -1, &stmt, nullptr) != SQLITE_OK)
+        throw std::runtime_error("Failed to prepare statement!");
+
+    sqlite3_bind_text(stmt, 1, timerName.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, timerCreator.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 3, timerStart);
+    sqlite3_bind_int(stmt, 4, timerDuration);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        sqlite3_finalize(stmt);
+        throw std::runtime_error("Adding timer failed!");
+    }
+
+    sqlite3_finalize(stmt);
+    return 0;
+}
+
+int SqliteDatabase::deleteTimer(int timerId) {
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(_db, DELETE_EXISTING_TIMER, -1, &stmt, nullptr) != SQLITE_OK)
+        throw std::runtime_error("Failed to prepare statement!");
+
+    sqlite3_bind_int(stmt, 1, timerId);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        sqlite3_finalize(stmt);
+        throw std::runtime_error("Removing timer failed!");
+    }
+
+    sqlite3_finalize(stmt);
+    return 0;
+}
+
+std::vector<Timer> SqliteDatabase::getTimers() {
+    sqlite3_stmt* stmt;
+    if (sqlite3_prepare_v2(_db, GET_ALL_TIMERS, -1, &stmt, nullptr) != SQLITE_OK)
+        throw std::runtime_error("Failed to prepare statement!");
+
+    std::vector<Timer> timers;
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        const int timerId = sqlite3_column_int(stmt, 0);
+        const std::string timerName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        const std::string timerCreator = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        const int timerStart = sqlite3_column_int(stmt, 3);
+        const int timerDuration = sqlite3_column_int(stmt, 4);
+
+        Timer timer(timerId, timerName, timerCreator, timerStart, timerDuration);
+        timers.push_back(timer);
+    }
+
+    sqlite3_finalize(stmt);
+    return timers;
 }
